@@ -23,26 +23,27 @@ public class NasaScheduledTask {
         // obtener datos de segun query param apollo 11
         NasaDataDto response = nasaClientRest.getNasaData("apollo 11");
         if (response != null && response.getCollection() != null && response.getCollection().getItems() != null && !response.getCollection().getItems().isEmpty()) {
-            // obtener el primer item de items
-            NasaDataDto.Collection.Item item = response.getCollection().getItems().get(0);
-            if (item.getData() != null && !item.getData().isEmpty()) {
-                // obtener el primer item de data
-                NasaDataDto.Collection.Item.DataDto data = item.getData().get(0);
-                
-                // almacenamiento de datos en BD
-                NasaRecordEntity record = NasaRecordEntity.builder()
-                    .href(item.getHref())
-                    .center(data.getCenter())
-                    .title(data.getTitle())
-                    .nasaId(data.getNasa_id())
-                    .build();
+            // recorrer todo el arreglo items
+            response.getCollection().getItems().forEach(item -> {
+                if (item.getData() != null && !item.getData().isEmpty()) {
+                    // obtener el primer item de data
+                    NasaDataDto.Collection.Item.DataDto data = item.getData().get(0);
+                    
+                    // almacenamiento de datos en BD
+                    NasaRecordEntity record = NasaRecordEntity.builder()
+                        .href(item.getHref())
+                        .center(data.getCenter())
+                        .title(data.getTitle())
+                        .nasaId(data.getNasa_id())
+                        .build();
 
-                nasaRecordRepository.save(record);
-
-                System.out.println("Record saved");
-            } else {
-                System.out.println("No data found in the first item");
-            }
+                    nasaRecordRepository.save(record);
+                } else {
+                    System.out.println("No data found in the first item");
+                }
+            });
+            //NasaDataDto.Collection.Item item = response.getCollection().getItems().get(0);
+            
         } else {
             System.out.println("No items found in the response");
         }

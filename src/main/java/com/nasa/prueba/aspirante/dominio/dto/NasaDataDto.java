@@ -2,11 +2,9 @@ package com.nasa.prueba.aspirante.dominio.dto;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,8 +12,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class NasaDataDto {
     @JsonProperty("collection")
     private Collection collection;
@@ -23,7 +19,6 @@ public class NasaDataDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    @Builder
     public static class Collection {
         @JsonProperty("items")
         private List<Item> items;
@@ -31,7 +26,6 @@ public class NasaDataDto {
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
-        @Builder
         public static class Item {
             @JsonProperty("href")
             private String href;
@@ -41,7 +35,6 @@ public class NasaDataDto {
             @Data
             @NoArgsConstructor
             @AllArgsConstructor
-            @Builder
             public static class DataDto {
                 @JsonProperty("center")
                 private String center;

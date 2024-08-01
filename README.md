@@ -10,4 +10,5 @@ Fernando Amilcar Galicia Cáceres
 
 # Notas
 Cambiar credenciales de BD en application.properties
+<br>
 api get para obtener datos guardados en BD: <strong>/api/v1/nasa_records/apollo_11</strong>
