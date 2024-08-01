@@ -4,7 +4,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.nasa.prueba.aspirante.dominio.dto.NasaDataDto;
+import com.nasa.prueba.aspirante.dominio.entities.NasaRecordEntity;
 import com.nasa.prueba.aspirante.infraestructura.clientrest.NasaClientRest;
+import com.nasa.prueba.aspirante.infraestructura.repository.NasaRecordRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class NasaScheduledTask {
     
     private final NasaClientRest nasaClientRest;
+    private final NasaRecordRepository nasaRecordRepository;
 
     // Consumo programado de api rest cada minuto (60,000 milisegundos)
     @Scheduled(fixedRate = 60000)
@@ -25,10 +28,18 @@ public class NasaScheduledTask {
             if (item.getData() != null && !item.getData().isEmpty()) {
                 // obtener el primer item de data
                 NasaDataDto.Collection.Item.DataDto data = item.getData().get(0);
-                System.out.println("Href: " + item.getHref());
-                System.out.println("Center: " + data.getCenter());
-                System.out.println("Title: " + data.getTitle());
-                System.out.println("Nasa ID: " + data.getNasa_id());
+                
+                // almacenamiento de datos en BD
+                NasaRecordEntity record = NasaRecordEntity.builder()
+                    .href(item.getHref())
+                    .center(data.getCenter())
+                    .title(data.getTitle())
+                    .nasaId(data.getNasa_id())
+                    .build();
+
+                nasaRecordRepository.save(record);
+
+                System.out.println("Record saved");
             } else {
                 System.out.println("No data found in the first item");
             }
