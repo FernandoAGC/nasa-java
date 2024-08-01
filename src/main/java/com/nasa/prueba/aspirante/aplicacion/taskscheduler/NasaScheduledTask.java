@@ -1,5 +1,7 @@
 package com.nasa.prueba.aspirante.aplicacion.taskscheduler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +16,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NasaScheduledTask {
     
+    private static final Logger logger = LoggerFactory.getLogger(NasaScheduledTask.class);
     private final NasaClientRest nasaClientRest;
     private final NasaRecordRepository nasaRecordRepository;
 
-    // Consumo programado de api rest cada minuto (60,000 milisegundos)
+    // tarea programada de api rest externa de la nasa cada minuto (60,000 milisegundos)
     @Scheduled(fixedRate = 60000)
     public void getApolo11NasaData() {
         // obtener datos de segun query param apollo 11
@@ -29,23 +32,28 @@ public class NasaScheduledTask {
                     // obtener el primer item de data
                     NasaDataDto.Collection.Item.DataDto data = item.getData().get(0);
                     
-                    // almacenamiento de datos en BD
-                    NasaRecordEntity record = NasaRecordEntity.builder()
-                        .href(item.getHref())
-                        .center(data.getCenter())
-                        .title(data.getTitle())
-                        .nasaId(data.getNasa_id())
-                        .build();
+                    // comprobacion si los datos no son nulos
+                    if (item.getHref() != null && data.getCenter() != null && data.getTitle() != null && data.getNasa_id() != null) {
+                        // almacenamiento de datos en BD
+                            NasaRecordEntity record = NasaRecordEntity.builder()
+                            .href(item.getHref())
+                            .center(data.getCenter())
+                            .title(data.getTitle())
+                            .nasaId(data.getNasa_id())
+                            .build();
 
-                    nasaRecordRepository.save(record);
+                        try {
+                            nasaRecordRepository.save(record);
+                        } catch (Exception e) {
+                            logger.error("Error while saving data to the database: {}", e.getMessage());
+                        }
+                    }
                 } else {
-                    System.out.println("No data found in the first item");
+                    logger.warn("No data found in the item");
                 }
             });
-            //NasaDataDto.Collection.Item item = response.getCollection().getItems().get(0);
-            
         } else {
-            System.out.println("No items found in the response");
+            logger.warn("No items found in the response");
         }
     }
 
